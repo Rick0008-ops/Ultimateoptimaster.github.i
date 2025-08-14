@@ -1,0 +1,580 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>UltimateOptimaster — Optimización Definitiva</title>
+  <meta name="description" content="UltimateOptimaster: optimización automática de PC y perfiles por juego. Más FPS, menos latencia, mantenimiento inteligente y monitorización en tiempo real.">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&display=swap" rel="stylesheet">
+  <style>
+    /* ------------------------------------------------------------------
+       UltimateOptimaster — Full single-file demo
+       - Dark, modern, glassy UI
+       - Lots of effects: particles, parallax, glass blur, tilt, animated stats
+       - Replace assets/logo.svg with your real logo file (same path) to show proper logo
+       ------------------------------------------------------------------ */
+
+    :root{
+      --bg-900:#070709;
+      --bg-800:#0b0b0d;
+      --card:#0f1113;
+      --muted:#9aa3b2;
+      --accent-1:#5ee8ff;
+      --accent-2:#7cf6b6;
+      --glass: rgba(255,255,255,0.04);
+      --glass-2: rgba(255,255,255,0.02);
+      --glass-border: rgba(255,255,255,0.04);
+      --radius-lg:18px;
+      --radius-md:12px;
+      --shadow-1: 0 8px 40px rgba(0,0,0,0.65);
+      --transition-fast: 180ms cubic-bezier(.2,.9,.3,1);
+      --max-width:1200px;
+    }
+
+    *{box-sizing:border-box}
+    html,body{height:100%;margin:0;background:linear-gradient(180deg,var(--bg-900) 0%, var(--bg-800) 60%);color:#e6eef6;font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,"Helvetica Neue",Arial}
+
+    /* Container */
+    .wrap{max-width:var(--max-width);margin:64px auto;padding:28px}
+
+    /* Header */
+    header{display:flex;align-items:center;justify-content:space-between;gap:20px;position:fixed;left:0;right:0;top:14px;z-index:999;padding:12px 28px;margin:0 auto;width:calc(100% - 56px);max-width:var(--max-width);background:linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));border-radius:14px;border:1px solid rgba(255,255,255,0.03);backdrop-filter:blur(10px);box-shadow:0 10px 40px rgba(0,0,0,0.6)}
+
+    .logo{display:flex;align-items:center;gap:14px}
+    .logo img{width:56px;height:56px;border-radius:12px;object-fit:contain;background:linear-gradient(135deg,var(--accent-1) 10%, #6cf 70%);padding:8px}
+    .logo h1{font-size:18px;margin:0;font-weight:800;letter-spacing:0.4px}
+    .logo p{margin:0;font-size:12px;color:var(--muted)}
+
+    nav{display:flex;gap:10px;align-items:center}
+    .btn{padding:10px 14px;border-radius:12px;font-weight:700;border:0;cursor:pointer;letter-spacing:0.3px}
+    .btn.primary{background:linear-gradient(90deg,var(--accent-1),#8ef0ff);color:#041017;box-shadow:0 8px 28px rgba(46,228,255,0.06)}
+    .btn.ghost{background:transparent;border:1px solid rgba(255,255,255,0.06);color:var(--muted)}
+
+    /* Hero */
+    .hero{display:grid;grid-template-columns:1fr 420px;gap:28px;margin-top:88px}
+    .glass-card{background:linear-gradient(180deg,var(--glass),var(--glass-2));border-radius:var(--radius-lg);padding:28px;backdrop-filter: blur(10px);box-shadow:var(--shadow-1);border:1px solid var(--glass-border)}
+    .hero h2{font-size:34px;margin:0 0 10px;line-height:1.02}
+    .lead{color:var(--muted);margin:0 0 18px;font-size:15px}
+
+    .cta-row{display:flex;gap:12px;margin-top:12px}
+
+    .stats{display:flex;gap:12px;margin-top:18px}
+    .stat{flex:1;padding:12px;border-radius:12px;background:linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));border:1px solid rgba(255,255,255,0.02)}
+    .stat h3{margin:0;font-size:18px}
+    .stat p{margin:6px 0 0;color:var(--muted);font-size:13px}
+
+    /* Layout sections */
+    section{margin-top:40px}
+    .grid-3{display:grid;grid-template-columns:repeat(3,1fr);gap:18px}
+    .feature{padding:18px;border-radius:14px;background:linear-gradient(180deg,var(--card),#0b0d10);box-shadow:0 8px 40px rgba(0,0,0,0.6);border:1px solid rgba(255,255,255,0.03)}
+    .feature h4{margin:0 0 8px}
+    .feature p{margin:0;color:var(--muted);font-size:14px}
+
+    /* Gallery */
+    .gallery{display:grid;grid-template-columns:1fr 1fr;gap:18px}
+    .game-card{position:relative;border-radius:14px;overflow:hidden;min-height:240px;cursor:pointer;transform:translateZ(0)}
+    .game-card img{width:100%;height:100%;object-fit:cover;display:block;transform:scale(1.03);transition:transform .9s cubic-bezier(.2,.9,.3,1), filter .6s}
+    .game-card:hover img{transform:scale(1.08);filter:brightness(1.05) saturate(1.05)}
+    .game-overlay{position:absolute;inset:0;padding:18px;display:flex;flex-direction:column;justify-content:flex-end;background:linear-gradient(180deg, rgba(4,6,8,0) 40%, rgba(4,6,8,0.6));}
+    .game-overlay h5{margin:0;font-size:20px}
+    .game-overlay p{margin:6px 0 0;color:var(--muted);font-size:13px}
+
+    /* Performance demo */
+    .perf-panel{display:flex;flex-direction:column;gap:12px}
+    .perf-bar{height:14px;background:rgba(255,255,255,0.04);border-radius:999px;overflow:hidden}
+    .perf-fill{height:100%;width:10%;background:linear-gradient(90deg,var(--accent-1),var(--accent-2));transition:width 700ms cubic-bezier(.2,.9,.3,1)}
+
+    /* Lightbox */
+    .lightbox{position:fixed;inset:0;display:none;place-items:center;background:rgba(0,0,0,0.8);z-index:2000}
+    .lightbox img{max-width:90%;max-height:80%;border-radius:10px;box-shadow:0 30px 80px rgba(0,0,0,0.9)}
+
+    /* Particles canvas */
+    #particles{position:fixed;left:0;top:0;width:100%;height:100%;z-index:0;pointer-events:none}
+
+    /* Footer */
+    footer{margin-top:40px;padding:18px;border-radius:12px;background:linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));display:flex;align-items:center;justify-content:space-between}
+
+    /* Tiny helpers */
+    .muted{color:var(--muted)}
+    .row{display:flex;gap:12px;align-items:center}
+
+    /* Responsive */
+    @media (max-width:980px){.hero{grid-template-columns:1fr}.grid-3{grid-template-columns:1fr}.gallery{grid-template-columns:1fr}.wrap{padding:18px;margin:18px auto}}
+
+    /* Animations */
+    .glow { animation: glow 2.2s infinite alternate; }
+    @keyframes glow{from{text-shadow:0 6px 18px rgba(94,232,255,0.12)} to{text-shadow:0 24px 60px rgba(94,232,255,0.2)}}
+
+    /* Big scenic background gradient */
+    .scenic{position:fixed;inset:0;z-index:-1;filter:blur(60px) contrast(110%) saturate(120%);opacity:0.35;background:radial-gradient(400px 200px at 8% 10%, rgba(20,160,255,0.12), transparent 8%), radial-gradient(400px 200px at 85% 90%, rgba(100,200,180,0.08), transparent 8%), linear-gradient(180deg, rgba(10,10,12,0.5), rgba(1,1,2,0.6))}
+
+    /* Decorative glass cards */
+    .frost{border-radius:18px;padding:20px;background:linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));border:1px solid rgba(255,255,255,0.03);box-shadow:0 20px 60px rgba(0,0,0,0.6)}
+
+    /* Feature grid larger tasks */
+    .big-grid{display:grid;grid-template-columns:1fr 420px;gap:18px;align-items:start}
+
+    /* badge */
+    .badge{display:inline-block;background:linear-gradient(90deg,var(--accent-1),var(--accent-2));color:#021017;padding:6px 10px;border-radius:999px;font-weight:700}
+
+    /* progress circles for CPU/GPU */
+    .meter{width:110px;height:110px;border-radius:999px;background:linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));display:grid;place-items:center;position:relative}
+    .meter svg{position:absolute;left:0;top:0}
+    .meter .value{font-weight:800}
+
+    /* tiny accessibility tweaks */
+    .visually-hidden{position:absolute!important;height:1px;width:1px;overflow:hidden;clip:rect(1px,1px,1px,1px);white-space:nowrap}
+
+  </style>
+</head>
+<body>
+
+<!-- scenic background -->
+<div class="scenic" aria-hidden="true"></div>
+<canvas id="particles"></canvas>
+
+<div class="wrap" role="main">
+  <header>
+    <div class="logo" aria-hidden="false">
+      <!-- Replace assets/logo.svg with your logo file. If not present, an inline fallback SVG will render -->
+      <img id="appLogo" src="assets/logo.svg" alt="UltimateOptimaster Logo" onerror="(function(img){img.onerror=null;img.src='data:image/svg+xml;utf8,<svg xmlns=\'http://www.w3.org/2000/svg\' width=\'128\' height=\'128\' viewBox=\'0 0 24 24\'><defs><linearGradient id=\'g\' x1=\'0%\' y1=\'0%\' x2=\'100%\' y2=\'100%\'><stop offset=\'0%\' stop-color=\'%235ee8ff\'/><stop offset=\'100%\' stop-color=\'%237cf6b6\'/></linearGradient></defs><rect rx=\'5\' width=\'24\' height=\'24\' fill=\'url(%23g)\'/><path d=\'M6 12c0-3.3137 2.6863-6 6-6s6 2.6863 6 6-2.6863 6-6 6-6-2.6863-6-6z\' fill=\'#021616\' opacity=\'0.06\'></path><path d=\'M12 7l2.8 4.8L17 14l-4.6.6L12 19 9.6 14.6 5 14l2.2-2.2L12 7z\' fill=\'#ffffff\'/></svg>';})(this)"/>
+      <div>
+        <h1>UltimateOptimaster <span class="badge">v2.1</span></h1>
+        <p class="muted">Optimización inteligente para tu PC y juegos</p>
+      </div>
+    </div>
+
+    <nav aria-label="Navegación principal">
+      <button class="btn ghost" id="docsBtn">Docs</button>
+      <button class="btn ghost" id="supportBtn">Soporte</button>
+      <button class="btn primary" id="downloadBtn">Descargar</button>
+    </nav>
+  </header>
+
+  <!-- HERO -->
+  <div class="hero">
+    <div class="glass-card">
+      <h2 class="glow">Consigue el máximo rendimiento — sin complicaciones</h2>
+      <p class="lead">UltimateOptimaster analiza tu sistema, aplica ajustes seguros y prioriza recursos para que tus juegos funcionen con mayor estabilidad y FPS. Sin configuración dolorosa: perfiles por juego, monitorización en tiempo real y mantenimiento inteligente.</p>
+
+      <div class="cta-row">
+        <button class="btn primary" id="tryNow">Probar ahora</button>
+        <button class="btn ghost" id="watchDemo">Ver demo</button>
+      </div>
+
+      <div class="stats" style="margin-top:18px">
+        <div class="stat">
+          <h3 id="avgBoost">+0%</h3>
+          <p>Mejora teórica media (depende del hardware)</p>
+        </div>
+        <div class="stat">
+          <h3>Perfiles</h3>
+          <p>Perfiles por juego y por hardware</p>
+        </div>
+        <div class="stat">
+          <h3>Restaurar</h3>
+          <p>Rollback seguro ante cualquier cambio</p>
+        </div>
+      </div>
+    </div>
+
+    <aside class="glass-card" style="display:flex;flex-direction:column;gap:12px;align-items:stretch">
+      <div style="display:flex;align-items:center;justify-content:space-between">
+        <div>
+          <strong>Estado</strong>
+          <p style="margin:6px 0 0;color:var(--muted);font-size:13px">Sistema: <span id="sysState">Analizando...</span></p>
+        </div>
+        <div style="text-align:right">
+          <div style="font-size:22px;font-weight:800" id="effVal">0%</div>
+          <div style="color:var(--muted);font-size:12px">Eficiencia</div>
+        </div>
+      </div>
+
+      <div style="height:8px;background:rgba(255,255,255,0.04);border-radius:999px;overflow:hidden"><div id="effBar" style="width:0;height:100%;background:linear-gradient(90deg,var(--accent-1),var(--accent-2))"></div></div>
+
+      <div style="display:flex;gap:10px;margin-top:12px">
+        <div style="flex:1;background:linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));padding:10px;border-radius:10px;text-align:center">FPS Est: <strong id="fpsEst">0</strong></div>
+        <div style="flex:1;background:linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));padding:10px;border-radius:10px;text-align:center">CPU Load: <strong id="cpuLoad">0%</strong></div>
+      </div>
+    </aside>
+  </div>
+
+  <!-- WHAT IS OPTIMIZATION -->
+  <section>
+    <div class="glass-card">
+      <h3>¿Qué es la optimización?</h3>
+      <p class="muted">La optimización es el proceso de ajustar hardware, software y la configuración del sistema para mejorar la eficiencia y el rendimiento. Para jugadores, eso suele traducirse en más FPS, latencia más baja, menos stuttering y tiempos de carga reducidos. UltimateOptimaster automatiza y valida estos cambios para ofrecer resultados visibles sin comprometer la estabilidad.</p>
+
+      <div style="display:flex;gap:16px;margin-top:18px;flex-wrap:wrap">
+        <div class="frost" style="flex:1;min-width:240px">
+          <h4>¿Qué hace UltimateOptimaster?</h4>
+          <ul style="margin:8px 0 0;color:var(--muted)">
+            <li><strong>Priorización de procesos:</strong> asigna prioridad a procesos de juego para reducir latencia y competencia por CPU.</li>
+            <li><strong>Optimización de GPU:</strong> ajustes automáticos de drivers y cambios de configuración para maximizar throughput gráfico.</li>
+            <li><strong>Gestión de memoria:</strong> liberación inteligente, compactación y priorización de memoria para evitar stutters.</li>
+            <li><strong>Optimización de I/O:</strong> mejora el orden de acceso a disco y reduce la fragmentación lógica de recursos virtuales.</li>
+            <li><strong>Reducción de input-lag:</strong> optimizaciones de temporización y red para partidas online.</li>
+            <li><strong>Perfiles por título:</strong> ajustes específicos y verificados para juegos AAA (seguro con anti-cheat).</li>
+            <li><strong>Mantenimiento programado:</strong> limpiezas y actualizaciones automáticas en horarios definidos por el usuario.</li>
+            <li><strong>Rollback seguro:</strong> todos los cambios son reversibles con snapshots locales.</li>
+          </ul>
+        </div>
+
+        <div class="frost" style="flex:1;min-width:240px">
+          <h4>Mejoras típicas</h4>
+          <ul style="margin:8px 0 0;color:var(--muted)">
+            <li>+20–40% FPS en títulos con CPU bound en sistemas óptimos.</li>
+            <li>Reducción del stutter en juegos con streaming intensivo de texturas.</li>
+            <li>Mejor consistencia en FPS (menores fluctuaciones).</li>
+            <li>Menor latencia de red para partidas competitivas.</li>
+            <li>Mejor respuesta en periféricos y menos input lag.</li>
+          </ul>
+        </div>
+
+        <div class="frost" style="flex:0.6;min-width:220px">
+          <h4>Seguridad y privacidad</h4>
+          <p class="muted">UltimateOptimaster funciona con telemetría opcional y local: la mayor parte del análisis se hace en tu equipo y solo se envía información anónima si el usuario lo autoriza explícitamente. Los cambios se aplican con checkpoints para poder restaurar la configuración anterior.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- FEATURES -->
+  <section class="grid-3">
+    <div class="feature">
+      <h4>Perfiles por juego</h4>
+      <p>Perfiles verificados para cientos de juegos: optimización de gráficos, prioridad de procesos y servicios de fondo, perfiles de red para reducir jitter y reconexiones.</p>
+    </div>
+    <div class="feature">
+      <h4>Monitorización en tiempo real</h4>
+      <p>FPS, uso de CPU/GPU, temperatura y consumo energético. Alertas inteligentes y recomendaciones basadas en telemetría local.</p>
+    </div>
+    <div class="feature">
+      <h4>Mantenimiento inteligente</h4>
+      <p>Desfragmentación lógica, limpieza de memoria, optimización de I/O y sugerencias para drivers. Todo programable y reversible.</p>
+    </div>
+  </section>
+
+  <!-- Big grid with gallery and perf demo -->
+  <section style="margin-top:30px">
+    <h3>Optimización para tus títulos favoritos</h3>
+    <p class="muted">UltimateOptimaster incluye perfiles optimizados para una selección de juegos AAA: desde shooters competitivos hasta RPGs masivos.</p>
+
+    <div class="big-grid" style="margin-top:16px">
+      <div>
+        <div class="gallery" id="gameGallery">
+
+          <!-- Cyberpunk 2077 -->
+          <div class="game-card" data-game="Cyberpunk 2077" tabindex="0" role="button" aria-label="Abrir Cyberpunk 2077">
+            <img loading="lazy" src="https://static1.srcdn.com/wordpress/wp-content/uploads/2020/12/Cyberpunk-2077.jpg" alt="Cyberpunk 2077" onerror="this.onerror=null;this.src='https://via.placeholder.com/1600x900?text=Cyberpunk+2077'">
+            <div class="game-overlay">
+              <h5>Cyberpunk 2077</h5>
+              <p>Perfil: Ultra speed — prioriza GPU y baja latencia. Obtén el mejor rendimiento posible en Night City.</p>
+            </div>
+          </div>
+
+          <!-- Witcher 3 -->
+          <div class="game-card" data-game="The Witcher 3" tabindex="0" role="button" aria-label="Abrir The Witcher 3">
+            <img loading="lazy" src="https://static0.gamerantimages.com/wordpress/wp-content/uploads/2021/08/The-Witcher-3.jpg" alt="The Witcher 3" onerror="this.onerror=null;this.src='https://via.placeholder.com/1600x900?text=The+Witcher+3'">
+            <div class="game-overlay">
+              <h5>The Witcher 3</h5>
+              <p>Perfil: Estabilidad y calidad visual — optimiza streaming de texturas y uso de CPU para mundos abiertos.</p>
+            </div>
+          </div>
+
+          <!-- Elden Ring (reemplazado por imagen funcional) -->
+          <div class="game-card" data-game="Elden Ring" tabindex="0" role="button" aria-label="Abrir Elden Ring">
+            <img loading="lazy" src="https://images.openai.com/thumbnails/url/Hnu0SXicu1mSUVJSUGylr5-al1xUWVCSmqJbkpRnoJdeXJJYkpmsl5yfq5-Zm5ieWmxfaAuUsXL0S7F0Tw5KdisJTzZO90mq0DUxjnIx885K80_zT40qdMx0Sisy8ioKs3CyDKjw9zAuC7YMSrXwT81wyfRzDg7QTVcrBgAE_ykA" alt="Elden Ring" onerror="this.onerror=null;this.src='https://via.placeholder.com/1600x900?text=Elden+Ring'">
+            <div class="game-overlay">
+              <h5>Elden Ring</h5>
+              <p>Perfil: Rendimiento sostenido — reduce picos de temperatura y prioriza frames estables para combates críticos.</p>
+            </div>
+          </div>
+
+          <!-- Fortnite (reemplazado por imagen funcional) -->
+          <div class="game-card" data-game="Fortnite" tabindex="0" role="button" aria-label="Abrir Fortnite">
+            <img loading="lazy" src="https://images.openai.com/thumbnails/url/dw-lP3icu1mUUVJSUGylr5-al1xUWVCSmqJbkpRnoJdeXJJYkpmsl5yfq5-Zm5ieWmxfaAuUsXL0S7F0Tw4JMspPDSn1TU_MzfFJynf0LffzsnQLja-KKkgtTosIcHStKMnyd8rOcDcMN_HISQnwSs4sMdNNC_ZWKwYA4LoppQ" alt="Fortnite" onerror="this.onerror=null;this.src='https://via.placeholder.com/1600x900?text=Fortnite'">
+            <div class="game-overlay">
+              <h5>Fortnite</h5>
+              <p>Perfil: Competitivo — maximiza FPS y minimiza input lag para partidas online.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Perf demo / controls -->
+      <aside class="glass-card perf-panel">
+        <h4>Demo interactivo de optimización</h4>
+        <p class="muted">Simula cómo UltimateOptimaster aplica perfiles y optimizaciones. Este demo es ilustrativo y los valores reales dependen de tu hardware.</p>
+
+        <label for="gameSelect" class="muted">Selecciona juego</label>
+        <select id="gameSelect" style="padding:8px;border-radius:10px;background:transparent;color:inherit;border:1px solid rgba(255,255,255,0.04)">
+          <option>Cyberpunk 2077</option>
+          <option>The Witcher 3</option>
+          <option>Elden Ring</option>
+          <option>Fortnite</option>
+        </select>
+
+        <div style="margin-top:12px">
+          <div style="display:flex;justify-content:space-between"><small class="muted">FPS actual</small><small class="muted">FPS optimizado</small></div>
+          <div style="display:flex;gap:12px;margin-top:8px">
+            <div style="flex:1">
+              <div class="perf-bar"><div id="fpsBarBefore" class="perf-fill" style="width:24%"></div></div>
+              <small class="muted">Antes</small>
+            </div>
+            <div style="flex:1">
+              <div class="perf-bar"><div id="fpsBarAfter" class="perf-fill" style="width:45%"></div></div>
+              <small class="muted">Después</small>
+            </div>
+          </div>
+        </div>
+
+        <div style="display:flex;gap:10px;margin-top:8px">
+          <button class="btn primary" id="applyOpt">Aplicar optimización</button>
+          <button class="btn ghost" id="revertOpt">Revertir</button>
+        </div>
+
+        <div style="margin-top:12px;display:flex;gap:12px;align-items:center">
+          <div class="meter" id="cpuMeter" title="Uso CPU">
+            <svg width="110" height="110" viewBox="0 0 110 110"><defs><linearGradient id="g1" x1="0%" y1="0%" x2="100%" y2="0%"><stop offset="0%" stop-color="#5ee8ff"/><stop offset="100%" stop-color="#7cf6b6"/></linearGradient></defs><circle cx="55" cy="55" r="48" stroke="rgba(255,255,255,0.06)" stroke-width="12" fill="none"/><circle id="cpuArc" cx="55" cy="55" r="48" stroke="url(#g1)" stroke-width="12" stroke-dasharray="0 999" stroke-linecap="round" fill="none" transform="rotate(-90 55 55)"/></svg><div class="value" id="cpuVal">0%</div>
+          </div>
+
+          <div class="meter" id="gpuMeter" title="Uso GPU">
+            <svg width="110" height="110" viewBox="0 0 110 110"><defs><linearGradient id="g2" x1="0%" y1="0%" x2="100%" y2="0"><stop offset="0%" stop-color="#ff7ab6"/><stop offset="100%" stop-color="#ffb86b"/></linearGradient></defs><circle cx="55" cy="55" r="48" stroke="rgba(255,255,255,0.06)" stroke-width="12" fill="none"/><circle id="gpuArc" cx="55" cy="55" r="48" stroke="url(#g2)" stroke-width="12" stroke-dasharray="0 999" stroke-linecap="round" fill="none" transform="rotate(-90 55 55)"/></svg><div class="value" id="gpuVal">0%</div>
+          </div>
+        </div>
+
+        <small class="muted" style="margin-top:8px;display:block">Nota: demo ilustrativo. Para datos reales ejecuta el análisis dentro de la app.</small>
+      </aside>
+    </div>
+  </section>
+
+  <!-- DEEP DIVE: technical explanation -->
+  <section style="margin-top:34px">
+    <h3>Cómo funciona (técnico)</h3>
+    <div class="glass-card">
+      <h4>Pipeline de optimización</h4>
+      <ol class="muted">
+        <li><strong>Detección y perfilado:</strong> el motor detecta hardware y carga un perfil base relacionado con CPU, GPU, memoria y subsistema I/O.</li>
+        <li><strong>Análisis de procesos:</strong> identifica servicios y procesos no esenciales y evalúa si pueden suspenderse temporalmente sin afectar estabilidad.</li>
+        <li><strong>Aplicación de ajustes:</strong> - afinado de temporizadores del sistema, - prioridades de proceso, - planificador de E/S y optimizaciones de caché.</li>
+        <li><strong>Monitorización continua:</strong> telemetría local en tiempo real con posibilidad de alerta y rollback.</li>
+        <li><strong>Auto-ajuste:</strong> el sistema adapta los parámetros conforme cambia la carga de trabajo para mantener rendimiento estable.</li>
+      </ol>
+
+      <h4 style="margin-top:12px">Ejemplos concretos</h4>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+        <div class="frost">
+          <strong>Ahorro de CPU en juegos CPU-bound</strong>
+          <p class="muted">Reduciendo hilos de background y repartiendo prioridades se liberan ciclos de CPU para el hilo principal del juego, reduciendo frametime y aumentando FPS en cargas limitadas por CPU.</p>
+        </div>
+        <div class="frost">
+          <strong>Streaming de texturas (mundo abierto)</strong>
+          <p class="muted">Ajustando el prefetch y priorizando el I/O del proceso del juego, se reduce la latencia de carga de texturas y se evita stutter en zonas con streaming masivo.</p>
+        </div>
+      </div>
+
+      <h4 style="margin-top:12px">Políticas de seguridad</h4>
+      <p class="muted">Todos los cambios son no destructivos y reversibles. La aplicación se integra con mecanismos de protección de sistema y respeta requisitos de anti-cheat; no inyecta código en procesos y solo altera prioridades/servicios/parametrizaciones del sistema y drivers cuando es seguro.</p>
+    </div>
+  </section>
+
+  <!-- FOOTER -->
+  <footer>
+    <div>
+      <strong>UltimateOptimaster</strong>
+      <div class="muted" style="font-size:13px">© 2025 UltimateOptimaster — Todos los derechos reservados</div>
+    </div>
+    <div class="muted" style="font-size:13px">Soporte · Privacidad · Términos</div>
+  </footer>
+</div>
+
+<!-- Lightbox overlay -->
+<div class="lightbox" id="lightbox" role="dialog" aria-hidden="true">
+  <img id="lightboxImg" alt="Imagen ampliada">
+</div>
+
+<script>
+  /* ------------------------------------------------------------------
+     UI & effects JS
+     - Particles background
+     - Gallery lightbox
+     - Demo interactions and animations
+     - Accessibility/ARIA hooks
+     ------------------------------------------------------------------ */
+
+  // PARTICLES CANVAS
+  (function(){
+    const canvas = document.getElementById('particles');
+    const ctx = canvas.getContext('2d');
+    let particles = [];
+    let W = canvas.width = window.innerWidth;
+    let H = canvas.height = window.innerHeight;
+
+    function rand(min,max){return Math.random()*(max-min)+min}
+
+    function initParticles(){
+      particles = [];
+      const count = Math.round((W*H)/90000); // density
+      for(let i=0;i<count;i++){
+        particles.push({
+          x: rand(0,W), y: rand(0,H), r: rand(0.6,2.4),
+          vx: rand(-0.25,0.25), vy: rand(-0.15,0.15), alpha: rand(0.05,0.35)
+        });
+      }
+    }
+
+    function resize(){W=canvas.width=window.innerWidth;H=canvas.height=window.innerHeight;initParticles()}
+    window.addEventListener('resize',resize);
+
+    function render(){
+      ctx.clearRect(0,0,W,H);
+      for(const p of particles){
+        p.x += p.vx; p.y += p.vy;
+        if(p.x< -10) p.x = W+10; if(p.x>W+10) p.x = -10;
+        if(p.y< -10) p.y = H+10; if(p.y>H+10) p.y = -10;
+
+        const g = ctx.createLinearGradient(p.x-p.r, p.y-p.r, p.x+p.r, p.y+p.r);
+        g.addColorStop(0, 'rgba(94,232,255,'+p.alpha+')');
+        g.addColorStop(1, 'rgba(124,246,182,'+(p.alpha*0.6)+')');
+        ctx.fillStyle = g;
+        ctx.beginPath();
+        ctx.arc(p.x,p.y,p.r,0,Math.PI*2);
+        ctx.fill();
+      }
+      requestAnimationFrame(render);
+    }
+
+    initParticles();render();
+  })();
+
+  // LIGHTBOX
+  (function(){
+    const gallery = document.getElementById('gameGallery');
+    const lightbox = document.getElementById('lightbox');
+    const lbImg = document.getElementById('lightboxImg');
+
+    gallery.addEventListener('click', (e)=>{
+      const card = e.target.closest('.game-card');
+      if(!card) return;
+      const img = card.querySelector('img');
+      lbImg.src = img.src;
+      lightbox.style.display = 'grid';
+      lightbox.setAttribute('aria-hidden','false');
+    });
+
+    // keyboard close
+    lightbox.addEventListener('click',(e)=>{
+      if(e.target===lightbox || e.target===lbImg){lightbox.style.display='none'; lightbox.setAttribute('aria-hidden','true');}
+    });
+    document.addEventListener('keydown', (e)=>{ if(e.key==='Escape'){lightbox.style.display='none'; lightbox.setAttribute('aria-hidden','true');} });
+
+    // accessibility: focus on cards
+    document.querySelectorAll('.game-card').forEach(c=>{
+      c.addEventListener('keydown',(e)=>{ if(e.key==='Enter' || e.key===' ') { e.preventDefault(); c.click(); } });
+    });
+  })();
+
+  // Demo / perf interactions
+  (function(){
+    const games = {
+      'Cyberpunk 2077': {before:28, after:50, avgBoost:22, cpu:42, gpu:78},
+      'The Witcher 3': {before:48, after:78, avgBoost:30, cpu:36, gpu:55},
+      'Elden Ring': {before:38, after:62, avgBoost:24, cpu:45, gpu:65},
+      'Fortnite': {before:120, after:200, avgBoost:66, cpu:20, gpu:30}
+    };
+
+    const gameSelect = document.getElementById('gameSelect');
+    const fpsBarBefore = document.getElementById('fpsBarBefore');
+    const fpsBarAfter = document.getElementById('fpsBarAfter');
+    const fpsEst = document.getElementById('fpsEst');
+    const avgBoost = document.getElementById('avgBoost');
+    const effVal = document.getElementById('effVal');
+    const effBar = document.getElementById('effBar');
+    const cpuArc = document.getElementById('cpuArc');
+    const gpuArc = document.getElementById('gpuArc');
+    const cpuVal = document.getElementById('cpuVal');
+    const gpuVal = document.getElementById('gpuVal');
+
+    function updateUI(game){
+      const data = games[game];
+      if(!data) return;
+      // map to widths
+      fpsBarBefore.style.width = Math.min(90, Math.max(8, data.before/2.5))+'%';
+      fpsBarAfter.style.width = Math.min(100, Math.max(8, data.after/2.5))+'%';
+      fpsEst.textContent = data.after;
+      avgBoost.textContent = '+'+data.avgBoost+'%';
+      effVal.textContent = (Math.min(100, data.avgBoost+30))+'%';
+      effBar.style.width = Math.min(100, data.avgBoost+30)+'%';
+
+      // animate arcs
+      const setArc = (el,val)=>{
+        const circumference = 2*Math.PI*48;
+        const filled = Math.max(0, Math.min(circumference, (val/100)*circumference));
+        el.setAttribute('stroke-dasharray', filled+' '+(circumference-filled));
+      }
+      setArc(cpuArc, games[game].cpu);
+      setArc(gpuArc, games[game].gpu);
+      cpuVal.textContent = games[game].cpu+'%';
+      gpuVal.textContent = games[game].gpu+'%';
+    }
+
+    // init
+    updateUI(gameSelect.value);
+
+    gameSelect.addEventListener('change',(e)=>updateUI(e.target.value));
+    document.getElementById('applyOpt').addEventListener('click',()=>{
+      // add small flourish
+      document.getElementById('applyOpt').textContent='Optimizando...';
+      let t=0; const id=setInterval(()=>{
+        t+=8; if(t>=100){clearInterval(id);document.getElementById('applyOpt').textContent='Aplicar optimización';}
+        // subtle breathing of bars
+        fpsBarAfter.style.width = Math.min(100, parseFloat(fpsBarAfter.style.width)+0.8)+'%';
+      },120);
+    });
+
+    document.getElementById('revertOpt').addEventListener('click',()=>{
+      fpsBarAfter.style.width = Math.max(8, parseFloat(fpsBarBefore.style.width))+'%';
+    });
+
+    // animate average boost stat on load
+    (function animateAvg(){
+      let value=0;const target=28;const el=document.getElementById('avgBoost');
+      const iv=setInterval(()=>{value+=2; el.textContent='+'+value+'%'; if(value>=target){clearInterval(iv);el.textContent='+'+target+'%';}},90);
+    })();
+
+  })();
+
+  // small UI helpers
+  document.getElementById('downloadBtn').addEventListener('click',()=>{alert('Iniciando descarga (demo): en la app real esto iniciaría el instalador).');});
+  document.getElementById('docsBtn').addEventListener('click',()=>{alert('Abrir documentación (demo).');});
+  document.getElementById('supportBtn').addEventListener('click',()=>{alert('Abrir soporte.');});
+
+  // graceful placeholder handling for images that fail to load
+  document.querySelectorAll('img').forEach(img=>{
+    img.addEventListener('error',()=>{img.src='https://via.placeholder.com/1600x900?text=Imagen+no+disponible'});
+  });
+
+  // tiny parallax: tilt effect on cards
+  (function(){
+    document.querySelectorAll('.game-card').forEach(card=>{
+      card.addEventListener('mousemove',(e)=>{
+        const rect = card.getBoundingClientRect();
+        const x = (e.clientX - rect.left) / rect.width - 0.5;
+        const y = (e.clientY - rect.top) / rect.height - 0.5;
+        card.style.transform = `translateZ(0) perspective(800px) rotateX(${y*6}deg) rotateY(${x*8}deg) translateY(-6px)`;
+      });
+      card.addEventListener('mouseleave',()=>{card.style.transform='translateZ(0)';});
+      card.addEventListener('mousedown',()=>{card.style.transform+=' scale(0.98)';});
+      card.addEventListener('mouseup',()=>{card.style.transform='translateZ(0)';});
+    });
+  })();
+
+  // small accessibility: focus outline for keyboard users
+  document.addEventListener('keydown',(e)=>{ if(e.key==='Tab'){ document.body.classList.add('show-focus'); } });
+
+</script>
+
+<!-- End file -->
+</body>
+</html>
